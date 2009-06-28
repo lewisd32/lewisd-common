@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="build-main" basedir="..">
+
+	<property name="main.src" value="src/main/java" />
+	<property name="main.res" value="src/main/resources" />
+	<property name="main.lib.common" value="lib/main/common" />
+	<property name="main.lib.runtime" value="lib/main/runtime" />
+	<property name="main.lib.compile" value="lib/main/compile" />
+	<property name="main.dest" value="build/classes" />
+	<property name="main.dist" value="build/dist" />
+
+	<path id="classpath.main.compile">
+		<fileset dir="${main.lib.common}" includes="**/*.jar" />
+		<fileset dir="${main.lib.compile}" includes="**/*.jar" />
+	</path>
+	<path id="classpath.main.runtime">
+		<pathelement path="${main.dest}" />
+		<pathelement path="${main.res}" />
+		<fileset dir="${main.lib.common}" includes="**/*.jar" />
+		<fileset dir="${main.lib.runtime}" includes="**/*.jar" />
+	</path>
+	
+	<target name="init">
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="build"/>
+	</target>
+
+	<target name="compile" depends="init">
+		<mkdir dir="${main.dest}"/>
+
+		<javac destdir="${main.dest}"
+			debug="true"
+			failonerror="true">
+			<src path="${main.src}"/>
+			<classpath refid="classpath.main.compile"/>
+		</javac>
+	</target>
+
+</project>

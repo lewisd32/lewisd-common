@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="build-test" basedir="..">
+	
+	<import file="build-main.xml" />
+
+	<property name="test.lib.common" value="lib/test/common" />
+	<property name="test.lib.runtime" value="lib/test/runtime" />
+	<property name="test.lib.compile" value="lib/test/compile" />
+	
+	<property name="test.unit.src" value="src/test/java" />
+	<property name="test.unit.res" value="src/test/resources" />
+	<property name="test.unit.dest" value="build/test-classes" />
+	<property name="test.unit.tmp" value="build/test-tmp" />
+	<property name="test.unit.reports" value="build/report/test" />
+	<property name="test.unit.reports.xml" value="build/report/test/xml" />
+	<property name="test.unit.reports.html" value="build/report/test/html" />
+
+	<property name="coverage.classes" value="build/instrumented-classes" />
+	<property name="coverage.lib" value="lib/coverage" />
+	<property name="coverage.reports" value="build/report/coverage" />
+	<property name="coverage.reports.xml" value="build/report/coverage/xml" />
+	<property name="coverage.reports.html" value="build/report/coverage/html" />
+	
+	<path id="classpath.test.unit.compile">
+		<path refid="classpath.main.compile" />
+		<pathelement path="${main.dest}" />
+		<fileset dir="${test.lib.common}" includes="**/*.jar" />
+		<fileset dir="${test.lib.compile}" includes="**/*.jar" />
+	</path>
+	<path id="classpath.test.unit.runtime">
+		<path refid="classpath.main.runtime" />
+		<pathelement path="${test.unit.dest}" />
+		<pathelement path="${test.unit.res}" />
+		<fileset dir="${test.lib.common}" includes="**/*.jar" />
+		<fileset dir="${test.lib.runtime}" includes="**/*.jar" />
+	</path>
+
+	<path id="classpath.coverage.instrumented">
+		<pathelement path="${coverage.classes}" />
+		<path refid="classpath.test.unit.runtime" />
+	</path>
+	<path id="classpath.coverage.cobertura">
+		<fileset dir="${coverage.lib}" includes="**/*.jar" />
+	</path>
+	
+	<target name="init-tests">
+		<taskdef classpathref="classpath.coverage.cobertura" resource="tasks.properties" />
+	</target>
+
+	<target name="compile-unit-tests" depends="init-tests,compile">
+		<mkdir dir="${test.unit.dest}"/>
+
+		<javac destdir="${test.unit.dest}"
+			debug="true"
+			failonerror="true">
+			<src path="${test.unit.src}"/>
+			<classpath refid="classpath.test.unit.compile"/>
+		</javac>
+	</target>
+
+	<target name="instrument" depends="init-tests,compile-unit-tests">
+		
+		<delete file="${coverage.reports}/coverage.ser" />
+	
+		<cobertura-instrument
+				datafile="${coverage.reports}/coverage.ser"
+				todir="${coverage.classes}">
+
+			<ignore regex="org.apache.log4j.*" />
+
+			<fileset dir="${main.dest}">
+				<include name="**/*.class" />
+			</fileset>
+		</cobertura-instrument>
+	</target>
+
+	<target name="unit-test" depends="init-tests,compile-unit-tests,instrument">
+
+		<mkdir dir="${test.unit.tmp}"/>
+		<mkdir dir="${test.unit.reports}"/>
+		<mkdir dir="${test.unit.reports.xml}"/>
+
+		<echo message="Using: ${coverage.reports}/coverage.ser" />
+
+		<junit fork="yes"
+				forkmode="once"
+				printsummary="yes"
+				errorproperty="test.unit.error"
+				failureproperty="test.unit.failure"
+				tempDir="${test.unit.tmp}">
+
+			<jvmarg line="-server"/>
+			
+			<sysproperty key="net.sourceforge.cobertura.datafile"
+				file="${coverage.reports}/coverage.ser" />
+
+			<classpath>
+				<path refid="classpath.coverage.instrumented"/>
+				<path refid="classpath.coverage.cobertura"/>
+			</classpath>
+
+			<formatter type="xml" />
+
+			<batchtest todir="${test.unit.reports.xml}">
+				<fileset dir="${test.unit.src}">
+					<include name="**/*Test.java" />
+					<exclude name="**/Abstract*.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<junitreport todir="${test.unit.reports.xml}">
+			<fileset dir="${test.unit.reports.xml}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${test.unit.reports.html}" />
+		</junitreport>
+
+
+		<cobertura-report
+				datafile="${coverage.reports}/coverage.ser"
+				srcdir="${main.src}"
+				destdir="${coverage.reports.html}"
+				format="html" />
+		<cobertura-report
+				datafile="${coverage.reports}/coverage.ser"
+				srcdir="${main.src}"
+				destdir="${coverage.reports.xml}"
+				format="xml" />
+		<cobertura-check
+				branchrate="40"
+				totallinerate="80"
+				datafile="${coverage.reports}/coverage.ser"
+				haltonfailure="false">
+		</cobertura-check>
+		
+		<fail if="test.unit.error" message="Unit tests failed" />
+		<fail if="test.unit.failure" message="Unit tests failed" />
+	</target>
+
+</project>

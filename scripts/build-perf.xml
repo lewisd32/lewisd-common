@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="build-perf" basedir="..">
+
+	<import file="build-main.xml" />
+	<import file="build-test.xml" />
+	
+	<property name="test.perf.lib.common" value="lib/perf/common" />
+	<property name="test.perf.lib.runtime" value="lib/perf/runtime" />
+	<property name="test.perf.lib.compile" value="lib/perf/compile" />
+		
+	<property name="test.perf.src" value="src/perf/java" />
+	<property name="test.perf.res" value="src/perf/resources" />
+	<property name="test.perf.dest" value="build/perf-classes" />
+	<property name="test.perf.tmp" value="build/perf-tmp" />
+	<property name="test.perf.reports" value="build/report/perf" />
+	<property name="test.perf.reports.graphs" value="build/report/perf/graphs" />
+	<property name="test.perf.reports.xml" value="build/report/perf/xml" />
+	<property name="test.perf.reports.html" value="build/report/perf/html" />
+	
+    <property environment="env" />
+    <property name="env.BUILD_NUMBER" value="" />
+    <property name="env.BUILD_ID" value="" />
+    <property name="build.revision" value="${env.BUILD_NUMBER}" />
+    <property name="build.timestamp" value="${env.BUILD_ID}" />
+    <property name="build.timestamp.format" value="yyyy-MM-dd_HH-mm-ss" />
+
+	<path id="classpath.test.perf.compile">
+		<path refid="classpath.test.unit.compile" />
+		<pathelement path="${test.unit.dest}" />
+		<fileset dir="${test.perf.lib.common}" includes="**/*.jar" />
+		<fileset dir="${test.perf.lib.compile}" includes="**/*.jar" />
+	</path>
+	<path id="classpath.test.perf.runtime">
+		<path refid="classpath.test.unit.runtime" />
+		<pathelement path="${test.perf.dest}" />
+		<pathelement path="${test.perf.res}" />
+		<fileset dir="${test.perf.lib.common}" includes="**/*.jar" />
+		<fileset dir="${test.perf.lib.runtime}" includes="**/*.jar" />
+	</path>
+
+	<target name="compile-perf-tests" depends="init">
+		<mkdir dir="${test.perf.dest}"/>
+
+		<javac destdir="${test.perf.dest}"
+			debug="true"
+			failonerror="true">
+			<src path="${test.perf.src}"/>
+			<classpath refid="classpath.test.perf.compile"/>
+		</javac>
+	</target>
+
+	<target name="perf-test" depends="init,compile-perf-tests">
+		
+		<exec executable="bash" >
+			<arg value="-c" />
+			<arg value="set" />
+		</exec>
+
+		<mkdir dir="${test.perf.tmp}"/>
+		<mkdir dir="${test.perf.reports}"/>
+		<mkdir dir="${test.perf.reports.xml}"/>
+
+		<junit fork="yes"
+				forkmode="once"
+				printsummary="yes"
+				errorproperty="test.perf.error"
+				failureproperty="test.perf.failure"
+				tempDir="${test.perf.tmp}">
+			
+			<syspropertyset>
+				<propertyref prefix="build." />
+			</syspropertyset>
+			
+			<jvmarg line="-server"/>
+
+			<classpath>
+				<path refid="classpath.test.perf.runtime"/>
+			</classpath>
+
+			<formatter type="xml" />
+
+			<batchtest todir="${test.perf.reports.xml}">
+				<fileset dir="${test.perf.src}">
+					<include name="**/*Test.java" />
+					<exclude name="**/Abstract*.java" />
+					<exclude name="**/PerformanceTest.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<junitreport todir="${test.perf.reports.xml}">
+			<fileset dir="${test.perf.reports.xml}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${test.perf.reports.html}" />
+		</junitreport>
+		
+		<java classname="com.lewisd.jmicrobench.PerfTestGrapher">
+			<classpath>
+				<path refid="classpath.test.perf.runtime"/>
+			</classpath>
+			<arg value="${test.perf.project-name}" />
+			<arg value="20" />
+			<arg value="${test.perf.reports.graphs}" />
+		</java>
+
+		<fail if="test.perf.error" message="Performance tests failed" />
+		<fail if="test.perf.failure" message="Performance tests failed" />
+	</target>
+
+</project>
