@@ -13,7 +13,7 @@ import junit.framework.AssertionFailedError;
 
 import com.lewisd.reflection.ReflectionHelper;
 
-public class Assert extends junit.framework.Assert {
+public class Assert extends org.junit.Assert {
     
     private static final List<String> REFLECTIVE_EQUALS_EXCLUDE_PACKAGES = new LinkedList<String>();
     
