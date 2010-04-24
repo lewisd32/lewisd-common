@@ -4,9 +4,6 @@
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="src" path="src/test/resources"/>
-	<classpathentry kind="lib" path="lib/coverage/asm-2.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/coverage/asm-tree-2.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/coverage/cobertura.jar"/>
 	<classpathentry kind="lib" path="lib/coverage/jakarta-oro-2.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/main/common/log4j-1.2.13.jar"/>
 	<classpathentry kind="lib" path="lib/test/common/jmock-2.5.1.jar"/>
