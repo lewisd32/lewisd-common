@@ -2,12 +2,8 @@
 <project name="lewisd-common" basedir="." default="build">
     
     <import file="scripts/build-main.xml" />
-    <import file="scripts/build-test.xml" />
 
-    <target name="build" depends="test,dist" />
-
-    <target name="test" depends="init,unit-test">
-    </target>
+    <target name="build" depends="dist" />
 
     <target name="dist" depends="init,compile">
     	<mkdir dir="${main.dist}" />
