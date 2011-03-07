@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src/main/java"/>
-	<classpathentry kind="src" path="src/main/resources"/>
-	<classpathentry kind="src" path="src/test/java"/>
-	<classpathentry kind="src" path="src/test/resources"/>
-	<classpathentry kind="lib" path="lib/coverage/jakarta-oro-2.0.8.jar"/>
-	<classpathentry kind="lib" path="lib/main/common/log4j-1.2.13.jar"/>
-	<classpathentry kind="lib" path="lib/test/common/jmock-2.5.1.jar"/>
-	<classpathentry kind="lib" path="lib/test/common/jmock-junit4-2.5.1.jar"/>
-	<classpathentry kind="lib" path="lib/test/common/jmock-script-2.5.1.jar"/>
-	<classpathentry kind="lib" path="lib/test/common/junit-dep-4.5.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/main/common/junit-4.5.jar"/>
-	<classpathentry kind="output" path="classes"/>
+	<classpathentry kind="src" output="target/classes" path="src/main/java"/>
+	<classpathentry excluding="**" kind="src" output="target/classes" path="src/main/resources"/>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
+	<classpathentry excluding="**" kind="src" output="target/test-classes" path="src/test/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>
